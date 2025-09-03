@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Bike GPS Dashboard",
+  "description": "A futuristic GPS speedometer and trip computer for your bike. Tracks speed, distance, and fuel consumption with a modern, Material Design 3 inspired interface and a Picture-in-Picture mode.",
+  "requestFramePermissions": []
+}
