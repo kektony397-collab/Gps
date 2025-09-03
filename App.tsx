@@ -8,6 +8,7 @@ import InfoCard from './components/InfoCard';
 import FuelModal from './components/FuelModal';
 import Footer from './components/Footer';
 import { PiPButton } from './components/PiPButton';
+import Toast from './components/Toast';
 import { FuelIcon, MapPinIcon, HistoryIcon, PowerIcon, NoGpsIcon } from './components/Icons';
 
 const App: React.FC = () => {
@@ -32,6 +33,7 @@ const App: React.FC = () => {
     });
 
     const [isFuelModalOpen, setIsFuelModalOpen] = useState<boolean>(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
     const initialStartAttempted = useRef(false);
     
     const { 
@@ -70,6 +72,16 @@ const App: React.FC = () => {
         }
     }, [tripHistory]);
 
+    // Effect to clear toast message after a delay
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => {
+                setToastMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
+
 
     const { speed, distance } = data;
 
@@ -100,6 +112,7 @@ const App: React.FC = () => {
     const handleAddFuel = (liters: number) => {
         setTotalFuel(prev => prev + liters);
         setIsFuelModalOpen(false);
+        setToastMessage(`Successfully added ${liters.toFixed(2)}L of fuel.`);
     };
 
     const AppContent = () => {
@@ -175,6 +188,7 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-between p-4 selection:bg-cyan-500 selection:text-black">
+            <Toast message={toastMessage} show={!!toastMessage} />
             <main className="w-full flex flex-col items-center justify-center flex-grow">
                 <AppContent />
             </main>
