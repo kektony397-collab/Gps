@@ -9,7 +9,7 @@ import FuelModal from './components/FuelModal';
 import Footer from './components/Footer';
 import { PiPButton } from './components/PiPButton';
 import Toast from './components/Toast';
-import { FuelIcon, MapPinIcon, HistoryIcon, PowerIcon, NoGpsIcon } from './components/Icons';
+import { FuelIcon, MapPinIcon, HistoryIcon, PowerIcon, NoGpsIcon, TrashIcon } from './components/Icons';
 
 const App: React.FC = () => {
     // Initialize state from localStorage or use a default value
@@ -115,6 +115,13 @@ const App: React.FC = () => {
         setToastMessage(`Successfully added ${liters.toFixed(2)}L of fuel.`);
     };
 
+    const handleResetFuel = () => {
+        if (window.confirm('Are you sure you want to reset all fuel data? This action cannot be undone.')) {
+            setTotalFuel(0);
+            setToastMessage('Fuel data has been successfully reset.');
+        }
+    };
+
     const AppContent = () => {
         if (permissionState === 'prompt' && !isTracking) {
             return (
@@ -152,7 +159,7 @@ const App: React.FC = () => {
                     <InfoCard icon={<HistoryIcon />} title="Est. Range" value={estimatedRange.toFixed(0)} unit="km" />
                 </div>
 
-                <div className="flex items-center justify-center space-x-4 mt-8">
+                <div className="flex items-center justify-center space-x-2 sm:space-x-4 mt-8">
                      <button
                         onClick={handleToggleRide}
                         className={`relative w-20 h-20 flex items-center justify-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-900 group ${isTracking ? 'bg-red-500 hover:bg-red-600 focus:ring-red-400' : 'bg-green-500 hover:bg-green-600 focus:ring-green-400'}`}
@@ -163,8 +170,16 @@ const App: React.FC = () => {
                     <button
                         onClick={() => setIsFuelModalOpen(true)}
                         className="w-20 h-20 bg-slate-700 hover:bg-slate-600 text-white rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-4 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                        title="Add Fuel"
                     >
                         <FuelIcon className="w-8 h-8"/>
+                    </button>
+                    <button
+                        onClick={handleResetFuel}
+                        className="w-20 h-20 bg-slate-700 hover:bg-red-800/50 text-slate-400 hover:text-red-400 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                        title="Reset Fuel Data"
+                    >
+                        <TrashIcon className="w-8 h-8"/>
                     </button>
                     <PiPButton data={{speed, distance, remainingFuel}} />
                 </div>
