@@ -11,9 +11,27 @@ import { PiPButton } from './components/PiPButton';
 import { FuelIcon, MapPinIcon, HistoryIcon, PowerIcon, NoGpsIcon } from './components/Icons';
 
 const App: React.FC = () => {
-    const [totalFuel, setTotalFuel] = useState<number>(0);
+    // Initialize state from localStorage or use a default value
+    const [totalFuel, setTotalFuel] = useState<number>(() => {
+        try {
+            const savedFuel = localStorage.getItem('bikeTotalFuel');
+            return savedFuel ? JSON.parse(savedFuel) : 0;
+        } catch (error) {
+            console.error("Error parsing totalFuel from localStorage", error);
+            return 0;
+        }
+    });
+    const [tripHistory, setTripHistory] = useState<Trip[]>(() => {
+        try {
+            const savedHistory = localStorage.getItem('bikeTripHistory');
+            return savedHistory ? JSON.parse(savedHistory) : [];
+        } catch (error) {
+            console.error("Error parsing tripHistory from localStorage", error);
+            return [];
+        }
+    });
+
     const [isFuelModalOpen, setIsFuelModalOpen] = useState<boolean>(false);
-    const [tripHistory, setTripHistory] = useState<Trip[]>([]);
     const initialStartAttempted = useRef(false);
     
     const { 
@@ -33,6 +51,25 @@ const App: React.FC = () => {
             initialStartAttempted.current = true;
         }
     }, [permissionState, isTracking, startTracking]);
+
+    // Persist totalFuel to localStorage
+    useEffect(() => {
+        try {
+            localStorage.setItem('bikeTotalFuel', JSON.stringify(totalFuel));
+        } catch (error) {
+            console.error("Error saving totalFuel to localStorage", error);
+        }
+    }, [totalFuel]);
+
+    // Persist tripHistory to localStorage
+    useEffect(() => {
+        try {
+            localStorage.setItem('bikeTripHistory', JSON.stringify(tripHistory));
+        } catch (error) {
+            console.error("Error saving tripHistory to localStorage", error);
+        }
+    }, [tripHistory]);
+
 
     const { speed, distance } = data;
 
