@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useGeolocation } from './hooks/useGeolocation';
 import type { Trip } from './types';
 import { BIKE_AVERAGE_KMPL } from './constants';
@@ -14,6 +14,7 @@ const App: React.FC = () => {
     const [totalFuel, setTotalFuel] = useState<number>(0);
     const [isFuelModalOpen, setIsFuelModalOpen] = useState<boolean>(false);
     const [tripHistory, setTripHistory] = useState<Trip[]>([]);
+    const initialStartAttempted = useRef(false);
     
     const { 
         data, 
@@ -23,6 +24,15 @@ const App: React.FC = () => {
         permissionState,
         error
     } = useGeolocation();
+
+    useEffect(() => {
+        // Automatically try to start tracking on load if permission isn't denied.
+        // This triggers the browser's native permission prompt.
+        if (!initialStartAttempted.current && permissionState !== 'denied' && !isTracking) {
+            startTracking();
+            initialStartAttempted.current = true;
+        }
+    }, [permissionState, isTracking, startTracking]);
 
     const { speed, distance } = data;
 
@@ -56,13 +66,13 @@ const App: React.FC = () => {
     };
 
     const AppContent = () => {
-        if (permissionState === 'prompt') {
+        if (permissionState === 'prompt' && !isTracking) {
             return (
                 <div className="flex flex-col items-center justify-center h-full text-center">
-                    <NoGpsIcon className="w-24 h-24 text-cyan-400 mb-4" />
-                    <h2 className="text-2xl font-bold text-white mb-2">GPS Permission Required</h2>
+                    <NoGpsIcon className="w-24 h-24 text-cyan-400 mb-4 animate-pulse" />
+                    <h2 className="text-2xl font-bold text-white mb-2">Awaiting GPS Permission</h2>
                     <p className="text-slate-400 max-w-md">
-                        This application needs access to your location to track speed and distance. Please allow location access when prompted by your browser.
+                        Please allow location access in the prompt from your browser to begin tracking.
                     </p>
                 </div>
             );
